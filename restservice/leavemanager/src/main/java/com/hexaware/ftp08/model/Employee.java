@@ -5,6 +5,9 @@ import com.hexaware.ftp08.persistence.EmployeeDAO;
 
 import java.util.Objects;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Employee class to store employee personal details.
@@ -31,24 +34,24 @@ public class Employee {
   /**
    * empMobNo to store employee mobile number.
    */
-  private String empMobNo;
+  private long empMobNo;
 
-   /**
+  /**
    * empDptName to store employee department name.
    */
   private String empDptName;
 
-   /**
+  /**
    * empDateJoined to store employee date of joining.
    */
   private String empDateJoined;
 
-   /**
+  /**
    * empMgrId to store employee manager id.
    */
   private int empMgrId;
 
-   /**
+  /**
    * empLeaveBalance to store employee leave balance.
    */
   private int empLeaveBalance;
@@ -78,6 +81,28 @@ public class Employee {
    */
   public Employee(final int argEmpId) {
     this.empId = argEmpId;
+  }
+
+  /**
+   * @param argEmpId to initialize employee id.
+   * @param argEmpName to initialize employee name.
+   * @param argEmpEmail to initialize employee email.
+   * @param argEmpMobNo to initialize employee mobile number.
+   * @param argEmpDptName to initialize employee department name.
+   * @param argEmpMgrId to initialize employee manager id.
+   * @param argEmpLeaveBalance to initialize employee leave balance.
+   */
+  public Employee(final int argEmpId, final String argEmpName, final String argEmpEmail,
+                  final long argEmpMobNo, final String argEmpDptName,
+                  final int argEmpMgrId, final int argEmpLeaveBalance) {
+    this.empId = argEmpId;
+    this.empName = argEmpName;
+    this.empEmail = argEmpEmail;
+    this.empMobNo = argEmpMobNo;
+    this.empDptName = argEmpDptName;
+    this.empMgrId = argEmpMgrId;
+    this.empLeaveBalance = argEmpLeaveBalance;
+
   }
 
   /**
@@ -132,7 +157,7 @@ public class Employee {
    * Gets the EmployeeMobNo.
    * @return this Employee's Mobile number.
    */
-  public final String getEmpMobNo() {
+  public final long getEmpMobNo() {
     return empMobNo;
   }
 
@@ -140,7 +165,7 @@ public class Employee {
    *
    * @param argEmpMobNo to set employee mobile Number.
    */
-  public final void setEmpMobNo(final String argEmpMobNo) {
+  public final void setEmpMobNo(final long argEmpMobNo) {
     this.empMobNo = argEmpMobNo;
   }
 
@@ -234,5 +259,43 @@ public class Employee {
   public static Employee listById(final int empID) {
     return dao().find(empID);
   }
+
+  /**
+   * list employee details by id.
+   * @param leaId id to get employee details.
+   * @return Employee
+   */
+  /*public static Employee listByLeaveId(final int leaId) {
+    return dao().findLeave(leaId);
+  }*/
+
+  /**
+   * insert employee leave details.
+   * @param startDate to get employee details.
+   * @param endDate to get employee details.
+   * @param reason to get employee reason.
+   * @param empId to get employee id.
+   * @param days to get leave number of days.
+   * appliedDate for inserting applied on Date
+   * diff for calculating difference between dates
+   * numberOfDays to store number of days
+   * @throws ParseException throws Parse Exception
+   */
+  public static void applyLeave(final String startDate, final String endDate,
+                                final String reason, final int empId, final int days) throws ParseException {
+    java.util.Date dt1 = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+    java.sql.Date sDate = new java.sql.Date(dt1.getTime());
+    java.util.Date dt2 = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+    java.sql.Date eDate = new java.sql.Date(dt2.getTime());
+    long diff = dt2.getTime() - dt1.getTime();
+    int numberOfDays = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    java.sql.Date appliedDate = new java.sql.Date(new java.util.Date().getTime());
+    if (days < (numberOfDays + 1)) {
+      dao().insert(sDate, eDate, days, appliedDate, reason, empId);
+    }
+  }
+
+
+
 
 }
